@@ -93,6 +93,77 @@
             --text-dark: #f4f4f4;
             --card-background-light: #34495e;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--card-background-light);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .modal.open {
+            display: block;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .modal-overlay.open {
+            display: block;
+        }
+
+        .modal input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .modal button {
+            background-color: var(--secondary-color);
+            color: var(--text-light);
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .modal button:hover {
+            background-color: #27ae60;
+        }
+
+        .welcome-toast {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--card-background-light);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .welcome-toast.open {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -134,10 +205,53 @@
 
     <a href="#" class="cta-button" id="bookNow">Book Your Session Now</a>
 
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal" id="bookingModal">
+        <h3>Book Your Session</h3>
+        <input type="text" id="userName" placeholder="Your Name">
+        <input type="email" id="userEmail" placeholder="Your Email">
+        <input type="tel" id="userPhone" placeholder="Your Phone Number">
+        <button id="saveBooking">Save Booking</button>
+    </div>
+
+    <div class="welcome-toast" id="welcomeToast">
+        <p id="welcomeMessage"></p>
+        <button id="closeToast">Close</button>
+    </div>
+
     <script>
         document.getElementById('bookNow').addEventListener('click', function(e) {
             e.preventDefault();
-            alert('Thank you for your interest! Our team will contact you shortly to schedule your session.');
+            document.getElementById('modalOverlay').classList.add('open');
+            document.getElementById('bookingModal').classList.add('open');
+        });
+
+        document.getElementById('modalOverlay').addEventListener('click', function() {
+            closeModal();
+        });
+
+        document.getElementById('closeToast').addEventListener('click', function() {
+            closeToast();
+        });
+
+        document.getElementById('saveBooking').addEventListener('click', function() {
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            const phone = document.getElementById('userPhone').value;
+
+            if (name && email && phone) {
+                const bookingData = {
+                    name: name,
+                    email: email,
+                    phone: phone
+                };
+
+                localStorage.setItem('bookingData', JSON.stringify(bookingData));
+                showWelcomeToast(name);
+                closeModal();
+            } else {
+                alert('Please fill in all fields.');
+            }
         });
 
         // Theme Toggle Functionality
@@ -162,6 +276,26 @@
                 }, index * 200);
             });
         });
+
+        // Functions for handling modal and toast
+        function closeModal() {
+            const modalOverlay = document.getElementById('modalOverlay');
+            const bookingModal = document.getElementById('bookingModal');
+            modalOverlay.classList.remove('open');
+            bookingModal.classList.remove('open');
+        }
+
+        function showWelcomeToast(name) {
+            const welcomeToast = document.getElementById('welcomeToast');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            welcomeMessage.textContent = `Thank you, ${name}! You will hear from the QRS team soon. Expect a response within a few days.`;
+            welcomeToast.classList.add('open');
+        }
+
+        function closeToast() {
+            const welcomeToast = document.getElementById('welcomeToast');
+            welcomeToast.classList.remove('open');
+        }
     </script>
 </body>
 </html>
